@@ -8,7 +8,10 @@ if command == ".dbinfo"
 
     # Uncomment this to pass the first stage
     database_file.seek(16)  # Skip the first 16 bytes of the header
-    page_size = database_file.read(2).unpack("n")[0]
+    page_size = database_file.read(2).unpack1('n')
+    table_size = database_file.read.scan('CREATE TABLE').size
+
     puts "database page size: #{page_size}"
+    puts "number of tables: #{table_size}"
   end
 end
