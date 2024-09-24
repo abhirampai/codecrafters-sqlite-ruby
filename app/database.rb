@@ -24,7 +24,7 @@ class Database
 
     return if table_info.nil?
 
-    file.seek((table_info.rootpage * page_size) - page_size + 3)
+    file.seek(((table_info.rootpage - 1) * page_size) + 3)
   end
 
   private
