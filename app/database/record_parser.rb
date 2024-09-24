@@ -31,8 +31,8 @@ class RecordParser
     elsif serial_type >= 12 && serial_type.even?
       n_bytes = (serial_type - 12) / 2
       stream.read(n_bytes)
-    elsif 9.times.include?(serial_type)
-      stream.read(1).unpack1('H')
+    elsif 10.times.include?(serial_type)
+      stream.read(1).unpack1('C')
     else
       raise StandardError, "Unhandled serial type #{serial_type}"
     end

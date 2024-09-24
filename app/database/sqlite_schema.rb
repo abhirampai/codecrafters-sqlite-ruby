@@ -15,6 +15,6 @@ class SqliteSchema
     _number_of_bytes_in_payload = record_parser.parse_varint
     @row_id = record_parser.parse_varint
     record = record_parser.parse_record
-    @type, @name, @tbl_name, @root_page, @sql = record
+    @type, @name, @tbl_name, @rootpage, @sql = record
   end
 end
