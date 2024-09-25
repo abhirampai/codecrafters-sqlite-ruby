@@ -1,20 +1,22 @@
 # frozen_string_literal: true
 
 require_relative 'database/sqlite_schema'
+require_relative 'database/page_header'
 
 # Main database class
 # returns the database file instance
 class Database
-  attr_reader :file, :page_size, :table_size, :table_names, :sqlite_schema_rows
+  attr_reader :file, :page_size, :page_header, :table_names, :sqlite_schema_rows
 
   def initialize(database_file_path)
     @file = File.open(database_file_path, 'rb')
-    load_database_header_details
+    parse_database
   end
 
-  def load_database_header_details
+  def parse_database
     @page_size = load_page_size
-    @table_size = load_table_size
+    file.seek(100)
+    @page_header = PageHeader.new(file)
     @sqlite_schema_rows = load_sqlite_schema
     @table_names = load_table_names
   end
@@ -24,7 +26,8 @@ class Database
 
     return if table_info.nil?
 
-    file.seek(((table_info.rootpage - 1) * page_size) + 3)
+    file.seek((table_info.rootpage - 1) * page_size)
+    PageHeader.new(file)
   end
 
   private
@@ -34,14 +37,9 @@ class Database
     file.read(2).unpack1('n')
   end
 
-  def load_table_size
-    file.seek(103)
-    file.read(2).unpack1('n')
-  end
-
-  def load_sqlite_schema
+  def load_sqlite_schema # rubocop:disable Metrics/AbcSize
     file.seek(108)
-    column_pointers = table_size.times.map { |_| file.read(2).unpack1('n') + 1 }
+    column_pointers = page_header.number_of_cells.times.map { |_| file.read(2).unpack1('n') + 1 }
     column_pointers.each_with_object({}) do |pointers, hash|
       file.seek(pointers)
       sqlite_schema = SqliteSchema.new(file)

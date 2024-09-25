@@ -9,7 +9,7 @@ database = Database.new(database_file_path)
 
 if command == '.dbinfo'
   puts "database page size: #{database.page_size}"
-  puts "number of tables: #{database.table_size}"
+  puts "number of tables: #{database.page_header.number_of_cells}"
 elsif command == '.tables'
   puts database.table_names
 else
@@ -17,7 +17,7 @@ else
 
   return unless database.table_names.include?(table_name)
 
-  database.load_table_details(table_name)
+  page = database.load_table_details(table_name)
 
-  puts database.file.read(2).unpack1('n')
+  puts page.number_of_cells
 end
