@@ -41,7 +41,7 @@ else
       puts result
     else
       column_to_search = sql_command.condition.first.split('=').first.strip
-      value = sql_command.condition.first.split('=').last
+      value = sql_command.condition.first.split('=').last.strip.gsub("'", '')
       column_index = table_info.columns.index(column_to_search)
       row_index = 0
       rows.each_with_index { |row, index| row_index = index if row[column_index] == value }
