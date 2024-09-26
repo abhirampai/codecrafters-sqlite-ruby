@@ -30,7 +30,7 @@ class Database
     offset = (table_info.rootpage - 1) * page_size
     file.seek(offset)
     @page_header = PageHeader.new(file)
-    [page_header, table_info, load_sqlite_page(number_of_columns: table_info.columns.size, is_first_page: false)]
+    [page_header, table_info, load_sqlite_page(table_info.rootpage - 1, number_of_columns: table_info.columns.size, is_first_page: false)]
   end
 
   private
@@ -40,9 +40,9 @@ class Database
     file.read(2).unpack1('n')
   end
 
-  def load_sqlite_page(number_of_columns: 5, is_first_page: true)
+  def load_sqlite_page(offset = 0, number_of_columns: 5, is_first_page: true)
     column_pointers = page_header.number_of_cells.times.map { |_| file.read(2).unpack1('n') + 1 }
-    offset_size = is_first_page ? 0 : page_size
+    offset_size = is_first_page ? 0 : page_size * offset
     column_pointers.map do |pointers|
       file.seek(pointers + offset_size)
       sqlite_schema = SqliteSchema.new(file, number_of_columns:, is_first_page:)

@@ -25,15 +25,22 @@ class RecordParser
   end
 
   def parse_column_value(serial_type) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-    if serial_type >= 13 && serial_type.odd?
-      n_bytes = (serial_type - 13) / 2
-      stream.read(n_bytes)
-    elsif serial_type == 1
-      stream.read(1).unpack1('C')
-    elsif serial_type.zero?
+    case serial_type
+    when 0
       nil
+    when 1..4
+      stream.read(serial_type).unpack1('C')
+    when 5
+      stream.read(6).unpack1('C')
+    when 6, 7
+      stream.read(8).unpack1('C')
+    when 8, 9
+      serial_type == 8 ? 0 : 1
+    when 10, 11
+      throw 'Serial types are not supported'
     else
-      raise StandardError, "Unhandled serial type #{serial_type}"
+      length = (serial_type - (serial_type.even? ? 12 : 13)) / 2
+      stream.read(length)
     end
   end
 

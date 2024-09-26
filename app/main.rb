@@ -22,7 +22,7 @@ else
 
   page_header, table_info, page = database.load_table_details(table_name)
 
-  if %w[COUNT(*) count(*)].include? sql_command.columns.first
+  if sql_command.columns.first.match(/COUNT\(\*\)/i)
     puts page_header.number_of_cells
   else
     rows = page.map(&:record)
