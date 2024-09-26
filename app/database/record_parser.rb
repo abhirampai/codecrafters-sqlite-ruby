@@ -30,8 +30,8 @@ class RecordParser
       stream.read(n_bytes)
     elsif serial_type == 1
       stream.read(1).unpack1('C')
-    elsif serial_type == 0
-      return nil
+    elsif serial_type.zero?
+      nil
     else
       raise StandardError, "Unhandled serial type #{serial_type}"
     end
