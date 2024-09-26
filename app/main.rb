@@ -13,6 +13,7 @@ if command == '.dbinfo'
   puts "number of tables: #{database.page_header.number_of_cells}"
 elsif command == '.tables'
   puts database.table_names
+  puts database.sqlite_schema_rows
 else
   sql_command = SqlParser.new(command)
 
@@ -26,12 +27,15 @@ else
     puts page_header.number_of_cells
   else
     rows = page.map(&:record)
-    result = sql_command.columns.map do |column|
+    columns_to_select = sql_command.columns.map do |column|
       table_info.columns.index(column)
     end
 
-    rows.each do |row|
-      puts row[result.first]
+    result = rows.map do |row|
+      columns_to_select.map do |column|
+        row[column]
+      end.join('|')
     end
+    puts result
   end
 end
