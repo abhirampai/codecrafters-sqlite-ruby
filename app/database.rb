@@ -6,7 +6,7 @@ require_relative 'database/page_header'
 # Main database class
 # returns the database file instance
 class Database
-  attr_reader :file, :page_size, :page_header, :table_names, :sqlite_schema_rows
+  attr_reader :file, :page_size, :page_header, :table_names, :sqlite_schema_rows, :page
 
   def initialize(database_file_path)
     @file = File.open(database_file_path, 'rb')
@@ -17,6 +17,7 @@ class Database
     @page_size = load_page_size
     file.seek(100)
     @page_header = PageHeader.new(file)
+    @page = load_sqlite_page
     @sqlite_schema_rows = load_sqlite_schema
     @table_names = load_table_names
   end
@@ -26,8 +27,10 @@ class Database
 
     return if table_info.nil?
 
-    file.seek((table_info.rootpage - 1) * page_size)
-    PageHeader.new(file)
+    offset = (table_info.rootpage - 1) * page_size
+    file.seek(offset)
+    @page_header = PageHeader.new(file)
+    [page_header, table_info, load_sqlite_page(number_of_columns: table_info.columns.size, is_first_page: false)]
   end
 
   private
@@ -37,13 +40,19 @@ class Database
     file.read(2).unpack1('n')
   end
 
-  def load_sqlite_schema # rubocop:disable Metrics/AbcSize
-    file.seek(108)
+  def load_sqlite_page(number_of_columns: 5, is_first_page: true)
     column_pointers = page_header.number_of_cells.times.map { |_| file.read(2).unpack1('n') + 1 }
-    column_pointers.each_with_object({}) do |pointers, hash|
-      file.seek(pointers)
-      sqlite_schema = SqliteSchema.new(file)
-      hash[sqlite_schema.tbl_name] = sqlite_schema
+    offset_size = is_first_page ? 0 : page_size
+    column_pointers.map do |pointers|
+      file.seek(pointers + offset_size)
+      sqlite_schema = SqliteSchema.new(file, number_of_columns:, is_first_page:)
+      sqlite_schema
+    end
+  end
+
+  def load_sqlite_schema
+    page.each_with_object({}) do |row, hash|
+      hash[row.tbl_name] = row
     end
   end
 
