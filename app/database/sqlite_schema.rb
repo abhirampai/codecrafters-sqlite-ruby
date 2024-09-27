@@ -13,8 +13,8 @@ class SqliteSchema
   end
 
   def info
-    _number_of_bytes_in_payload = record_parser.parse_varint
     @row_id = record_parser.parse_varint
+    _ = record_parser.parse_varint
     @record = record_parser.parse_record
     @type, @name, @tbl_name, @rootpage, @sql = record
     @columns = parse_columns if @is_first_page

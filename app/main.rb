@@ -26,7 +26,14 @@ else
   if sql_command.columns.first.match(/COUNT\(\*\)/i)
     puts page_header.number_of_cells
   else
-    rows = page.map(&:record)
+    rows = page.map do |row|
+      if table_info.columns.include?('id')
+        [row.row_id, *row.record.slice(1..)]
+      else
+        row.record
+      end
+    end
+
     columns_to_select = sql_command.columns.map do |column|
       table_info.columns.index(column)
     end

@@ -62,7 +62,7 @@ class RecordParser
   def usable_bytes
     usable_bytes_array = []
     8.times do |_|
-      byte = stream.read(1).unpack1('c2')
+      byte = stream.read(1).unpack1('C')
       usable_bytes_array.append(byte)
       break if starts_with_zero(byte)
     end
