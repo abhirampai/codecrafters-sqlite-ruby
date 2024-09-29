@@ -49,9 +49,11 @@ else
       column_to_search = sql_command.condition.first.split('=').first.strip
       value = sql_command.condition.first.split('=').last.strip.gsub("'", '')
       column_index = table_info.columns.index(column_to_search)
-      row_index = 0
-      rows.each_with_index { |row, index| row_index = index if row[column_index] == value }
-      puts result[row_index]
+      row_indexes = []
+      rows.each_with_index { |row, index| row_indexes << index if row[column_index] == value }
+      row_indexes.each do |index|
+        puts result[index]
+      end
     end
   end
 end
