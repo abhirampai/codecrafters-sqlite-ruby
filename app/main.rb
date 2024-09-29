@@ -16,6 +16,8 @@ elsif command == '.tables'
 else
   sql_command = SqlParser.new(command)
 
+  return if sql_command.invalid_command?
+
   table_name = sql_command.tables.first
 
   return unless database.table_names.include?(table_name)
