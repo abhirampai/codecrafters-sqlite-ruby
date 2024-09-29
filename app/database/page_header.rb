@@ -8,7 +8,7 @@ class PageHeader
     @page_type = file.read(1).unpack1('c')
     @first_free_block_start = file.read(2).unpack1('n')
     @number_of_cells = file.read(2).unpack1('n')
-    @start_of_content_area = file.read(2).unpack1('c*')
+    @start_of_content_area = file.read(2).unpack1('n')
     @fragmented_free_bytes = file.read(1).unpack1('c')
   end
 

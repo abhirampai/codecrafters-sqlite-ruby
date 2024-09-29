@@ -13,6 +13,7 @@ class SqliteSchema
   end
 
   def info
+    _ = record_parser.parse_varint
     @row_id = record_parser.parse_varint
     _ = record_parser.parse_varint
     @record = record_parser.parse_record

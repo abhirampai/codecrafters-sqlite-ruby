@@ -41,10 +41,10 @@ class Database
   end
 
   def load_sqlite_page(offset = 0, number_of_columns: 5, is_first_page: true)
-    column_pointers = page_header.number_of_cells.times.map { |_| file.read(2).unpack1('n') + 1 }
+    column_pointers = page_header.number_of_cells.times.map { |_| file.read(2).unpack1('n') }
     offset_size = is_first_page ? 0 : page_size * offset
-    column_pointers.map do |pointers|
-      file.seek(pointers + offset_size)
+    column_pointers.map do |pointer|
+      file.seek(pointer + offset_size)
       sqlite_schema = SqliteSchema.new(file, number_of_columns:, is_first_page:)
       sqlite_schema
     end

@@ -24,16 +24,12 @@ class RecordParser
     end
   end
 
-  def parse_column_value(serial_type) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def parse_column_value(serial_type) # rubocop:disable Metrics/MethodLength
     case serial_type
     when 0
       nil
-    when 1..4
-      stream.read(serial_type).unpack1('C')
-    when 5
-      stream.read(6).unpack1('C')
-    when 6, 7
-      stream.read(8).unpack1('C')
+    when 1..7
+      stream.read(serial_type_bytes(serial_type)).unpack1('C')
     when 8, 9
       serial_type == 8 ? 0 : 1
     when 10, 11
@@ -71,5 +67,15 @@ class RecordParser
 
   def starts_with_zero(byte)
     (byte & IS_FIRST_BIT_ZERO_MASK).zero?
+  end
+
+  private
+
+  def serial_type_bytes(serial_type)
+    case serial_type
+    when 1..4 then serial_type
+    when 5 then 6
+    when 6, 7 then 8
+    end
   end
 end

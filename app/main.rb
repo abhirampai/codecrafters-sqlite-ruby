@@ -13,7 +13,6 @@ if command == '.dbinfo'
   puts "number of tables: #{database.page_header.number_of_cells}"
 elsif command == '.tables'
   puts database.table_names
-  puts database.sqlite_schema_rows
 else
   sql_command = SqlParser.new(command)
 
